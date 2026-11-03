@@ -467,7 +467,7 @@ body.focusing .keys{opacity:.4}
           <div class="inline"><button class="small" id="addBlock">Adicionar bloco</button></div>
           <label class="check"><input type="checkbox" id="loop"> Repetir a sequência ao final</label>
           <label class="check"><input type="checkbox" id="autoRest"> Começar a pausa sozinha</label>
-          <label class="check"><input type="checkbox" id="nagOpt"> Repetir o miau até eu voltar para a página</label>
+          <label class="check"><input type="checkbox" id="nagOpt"> Repetir o latido até eu voltar para a página</label>
         </div>
       </details>
     </section>
@@ -618,10 +618,25 @@ function meow(a,t,dur,f0,f1,f2,vol){
   o.connect(bp).connect(lp).connect(g).connect(a.destination);
   o.start(t);v.start(t);o.stop(t+dur+.05);v.stop(t+dur+.05);
 }
+// latidinho de cachorro pequeno: ataque rápido, tom que cai e um pouco de sopro
+function bark(a,t,dur,f0,f1,vol){
+  const o=a.createOscillator();o.type='sawtooth';
+  o.frequency.setValueAtTime(f0,t);o.frequency.linearRampToValueAtTime(f0*1.08,t+dur*.18);o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+  const f=a.createBiquadFilter();f.type='bandpass';f.Q.value=1.3;
+  f.frequency.setValueAtTime(1500,t);f.frequency.exponentialRampToValueAtTime(800,t+dur);
+  const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3800;
+  const g=a.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.012);g.gain.setValueAtTime(vol,t+dur*.3);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(f).connect(lp).connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.03);
+  // sopro (ruído curto) para soar menos eletrônico
+  const n=a.createBufferSource();n.buffer=noiseBuf(a,'white');
+  const nf=a.createBiquadFilter();nf.type='bandpass';nf.frequency.value=2200;nf.Q.value=.9;
+  const ng=a.createGain();ng.gain.setValueAtTime(0.0001,t);ng.gain.exponentialRampToValueAtTime(vol*.35,t+.01);ng.gain.exponentialRampToValueAtTime(0.0001,t+dur*.6);
+  n.connect(nf).connect(ng).connect(a.destination);n.start(t,Math.random()*3);n.stop(t+dur);
+}
 function chime(rest){
   const a=audio();if(!a)return;const t=a.currentTime+.02;
-  if(rest){meow(a,t,.32,620,760,560,.8);meow(a,t+.42,.38,640,800,520,.8)}
-  else meow(a,t,.8,520,780,430,.9);
+  if(rest){bark(a,t,.13,900,520,.7);bark(a,t+.2,.13,950,540,.7);bark(a,t+.4,.16,880,480,.7)}
+  else{bark(a,t,.2,720,360,.9);bark(a,t+.32,.22,760,340,.9)}
 }
 function chimeOld(rest){
   const a=audio(); if(!a) return;
@@ -1195,12 +1210,12 @@ const canNotify=()=>{try{return 'Notification' in window&&Notification.permissio
 function notify(title,body){if(!canNotify()||!document.hidden)return;try{const n=new Notification(title,{body,tag:'ciclo-foco'});n.onclick=()=>{try{window.focus();n.close()}catch(e){}}}catch(e){}}
 function renderNotifBtn(){const b=$('notifBtn');let ok=false;try{ok='Notification' in window}catch(e){}b.hidden=!ok;if(ok)b.textContent=Notification.permission==='granted'?'Notificações ativas':'Ativar notificações'}
 $('notifBtn').onclick=()=>{
-  const no=()=>toast('O navegador bloqueou notificações nesta página. O miau continua tocando.',null);
+  const no=()=>toast('O navegador bloqueou notificações nesta página. O latido continua tocando.',null);
   try{if(Notification.permission==='granted'){toast('As notificações já estão ativas.',null);return}
     const p=Notification.requestPermission(r=>{});if(p&&p.then)p.then(r=>{renderNotifBtn();r==='granted'?toast('Notificações ativadas',null):no()},no)}catch(e){no()}};
 renderNotifBtn();
 
-/* ---------- alarme insistente: repete o miau até você voltar ---------- */
+/* ---------- alarme insistente: repete o latido até você voltar ---------- */
 if(opts.nag===undefined)opts.nag=true;
 $('nagOpt').checked=opts.nag;
 $('nagOpt').onchange=e=>{opts.nag=e.target.checked;store.set('cf_opts',opts);if(!opts.nag&&nag){clearInterval(nag);nag=null}};
