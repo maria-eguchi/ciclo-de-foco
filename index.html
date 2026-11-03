@@ -511,42 +511,46 @@ const PAW='<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><p
 function mimi(eq,sleep){
   eq=eq||{};
   const coat='#f7e4c6', fluff='#efd0a3', ear='#eac595', chest='#fdf3e3', leg='#efd4ac', E='#3a2a2c';
-  const body='M50 21C67 21 77 34 77 54C77 76 70 89 50 89C30 89 23 76 23 54C23 34 33 21 50 21Z';
+  const body='M50 23C72 23 82 38 82 57C82 78 71 89 50 89C29 89 18 78 18 57C18 38 28 23 50 23Z';
   let s='<svg class="pet" viewBox="0 0 100 100" aria-hidden="true">';
-  s+='<ellipse cx="50" cy="93.5" rx="30" ry="4" fill="#000" opacity=".07"/>';
+  s+='<ellipse cx="50" cy="93.5" rx="35" ry="4" fill="#000" opacity=".07"/>';
   if(eq.back==='capa') s+='<path d="M28 56Q14 88 26 94L74 94Q86 88 72 56Z" fill="#7a2e52"/><path d="M26 94L74 94" stroke="#e8b84a" stroke-width="2.4"/>';
   // rabo fofo, com pontas em zigue-zague
-  s+='<path d="M70 66L76 60L79 66L85 61L86 68L92 67L89 73L94 77L88 79L90 85L83 84L80 89L76 84L70 84Z" fill="'+fluff+'"/>';
+  s+='<path d="M74 66L80 60L83 66L89 62L89.5 69L95 68.5L92 74L96.5 78L90.5 80L92 86L85 85L82 90L78 85L72 84Z" fill="'+fluff+'"/>';
   // pelagem: tufos triangulares nas laterais
-  s+='<g fill="'+coat+'"><path d="M25 50L18 55L24 58L17 64L24 66L18 73L25 74L20 81L28 80Z"/><path d="M75 50L82 55L76 58L83 64L76 66L82 73L75 74L80 81L72 80Z"/></g>';
+  s+='<g fill="'+coat+'"><path d="M20 50L13 55L19 58L12 64L19 66L13 73L20 74L15 81L24 81Z"/><path d="M80 50L87 55L81 58L88 64L81 66L87 73L80 74L85 81L76 81Z"/></g>';
   // orelhas pequenas e pontudas
-  s+='<path d="M31 32L33 13L46 25Z" fill="'+ear+'"/><path d="M69 32L67 13L54 25Z" fill="'+ear+'"/>';
-  s+='<path d="M34.5 27L35.5 18L42 24.5Z" fill="#f6c2c4"/><path d="M65.5 27L64.5 18L58 24.5Z" fill="#f6c2c4"/>';
+  s+='<path d="M27 37L29 15L44 27Z" fill="'+ear+'"/><path d="M73 37L71 15L56 27Z" fill="'+ear+'"/>';
+  s+='<path d="M31 31L32 20L40 27Z" fill="#f6c2c4"/><path d="M69 31L68 20L60 27Z" fill="#f6c2c4"/>';
   // corpo-ovo (cabeça e corpo juntos)
   s+='<path d="'+body+'" fill="'+coat+'"/>';
   // peito em V com franjinha
-  s+='<path d="M39 63Q50 67 61 63L59 71L55 68L52.5 75L50 70L47.5 75L45 68L41 71Z" fill="'+chest+'"/>';
+  s+='<path d="M37 64Q50 68.5 63 64L61 72L56.5 69L53 76L50 71L47 76L43.5 69L39 72Z" fill="'+chest+'"/>';
   // perninhas
   s+='<rect x="38" y="83" width="8" height="9" rx="3.5" fill="'+leg+'"/><rect x="54" y="83" width="8" height="9" rx="3.5" fill="'+leg+'"/>';
   // rosto
-  if(sleep) s+='<path d="M39 45q3 2.4 6 0M55 45q3 2.4 6 0" fill="none" stroke="'+E+'" stroke-width="1.9" stroke-linecap="round"/>';
-  else s+='<ellipse cx="42" cy="44.5" rx="2.6" ry="3.1" fill="'+E+'"/><ellipse cx="58" cy="44.5" rx="2.6" ry="3.1" fill="'+E+'"/><circle cx="42.9" cy="43.4" r=".9" fill="#fff"/><circle cx="58.9" cy="43.4" r=".9" fill="#fff"/>';
-  s+='<ellipse cx="35.5" cy="50.5" rx="4" ry="2.3" fill="#ff9db4" opacity=".6"/><ellipse cx="64.5" cy="50.5" rx="4" ry="2.3" fill="#ff9db4" opacity=".6"/>';
-  s+='<ellipse cx="50" cy="49" rx="2.5" ry="1.8" fill="'+E+'"/><path d="M47.4 52.2q1.3 1.6 2.6 0q1.3 1.6 2.6 0" fill="none" stroke="'+E+'" stroke-width="1.2" stroke-linecap="round"/>';
-  // pescoço
+  if(sleep) s+='<path d="M38 47.5q3 2.4 6 0M56 47.5q3 2.4 6 0" fill="none" stroke="'+E+'" stroke-width="1.9" stroke-linecap="round"/>';
+  else s+='<ellipse cx="41" cy="47" rx="2.6" ry="3.1" fill="'+E+'"/><ellipse cx="59" cy="47" rx="2.6" ry="3.1" fill="'+E+'"/><circle cx="41.9" cy="45.9" r=".9" fill="#fff"/><circle cx="59.9" cy="45.9" r=".9" fill="#fff"/>';
+  s+='<ellipse cx="33.5" cy="53" rx="4.3" ry="2.4" fill="#ff9db4" opacity=".6"/><ellipse cx="66.5" cy="53" rx="4.3" ry="2.4" fill="#ff9db4" opacity=".6"/>';
+  s+='<ellipse cx="50" cy="51.5" rx="2.5" ry="1.8" fill="'+E+'"/><path d="M47.4 54.7q1.3 1.6 2.6 0q1.3 1.6 2.6 0" fill="none" stroke="'+E+'" stroke-width="1.2" stroke-linecap="round"/>';
+  // pescoço (deslocado para a nova forma)
+  s+='<g transform="translate(0 2.5) scale(1.06 1) translate(-3 0)">';
   if(eq.neck==='coleira') s+='<path d="M29 57Q50 64 71 57" fill="none" stroke="#ff8fab" stroke-width="3.6" stroke-linecap="round"/><path d="M50 61.6c-1.5-1.6-3.8-.2-2.5 1.7L50 66l2.5-2.7c1.3-1.9-1-3.3-2.5-1.7z" fill="#e95f84"/>';
   if(eq.neck==='bandana') s+='<path d="M28 55.5Q50 62.5 72 55.5L50 77Z" fill="#7fc8f8"/><g fill="#fff"><circle cx="43" cy="62" r="1.3"/><circle cx="55" cy="62.5" r="1.3"/><circle cx="49" cy="69" r="1.3"/></g>';
   if(eq.neck==='lenco') s+='<path d="M28 55.5Q50 63 72 55.5L72 60.5Q50 68 28 60.5Z" fill="#b9a3f0"/><circle cx="58" cy="63" r="3.2" fill="#9d84e6"/><path d="M57.5 64l-3 11h5l2-10zM59 64l5 9h4l-6-10z" fill="#b9a3f0"/>';
   if(eq.neck==='perolas'){s+='<g fill="#fffdf8" stroke="#e2d2bd" stroke-width=".6">';for(let k=0;k<=10;k++){const t=k/10,x=30+40*t,y=56.5+7*Math.sin(Math.PI*t);s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.1"/>'}s+='</g><circle cx="50" cy="67" r="2.7" fill="#fffdf8" stroke="#e2d2bd" stroke-width=".6"/>'}
+  s+='</g>';
   // rosto
-  if(eq.face==='oculos') s+='<rect x="35" y="40" width="13.5" height="9.5" rx="4.3" fill="#3b2530"/><rect x="51.5" y="40" width="13.5" height="9.5" rx="4.3" fill="#3b2530"/><path d="M48.5 43h3" stroke="#ff8fab" stroke-width="1.8"/><path d="M37.5 42.6l3.6-1.3M54 42.6l3.6-1.3" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>';
+  if(eq.face==='oculos') s+='<rect x="34" y="42.5" width="13.5" height="9.5" rx="4.3" fill="#3b2530"/><rect x="52.5" y="42.5" width="13.5" height="9.5" rx="4.3" fill="#3b2530"/><path d="M47.5 45.5h5" stroke="#ff8fab" stroke-width="1.8"/><path d="M36.5 45.1l3.6-1.3M55 45.1l3.6-1.3" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>';
+  s+='<g transform="translate(0 2)">';
   // cabeça
   if(eq.head==='laco') s+='<g transform="translate(64 26) rotate(15)"><path d="M0 0L-8-5Q-9.5 0-8 5ZM0 0L8-5Q9.5 0 8 5Z" fill="#ff7fa0"/><circle r="2.3" fill="#e95f84"/></g>';
   if(eq.head==='flor') s+='<g transform="translate(37 27)"><g fill="#fff"><circle cy="-3.2" r="2.9"/><circle cx="3.2" r="2.9"/><circle cy="3.2" r="2.9"/><circle cx="-3.2" r="2.9"/></g><circle r="2.2" fill="#f6c453"/></g>';
   if(eq.head==='boina') s+='<g transform="rotate(-10 49 23)"><ellipse cx="49" cy="24" rx="16" ry="6" fill="#c94f6d"/><ellipse cx="49" cy="22.6" rx="12" ry="3.6" fill="#d9617f"/><path d="M49 18v-3" stroke="#c94f6d" stroke-width="2.4" stroke-linecap="round"/></g>';
   if(eq.head==='tiara') s+='<path d="M33 30Q50 18 67 30" fill="none" stroke="#e8c15a" stroke-width="2.6" stroke-linecap="round"/><g fill="#bfe6ff" stroke="#e8c15a" stroke-width=".8"><path d="M50 17.5l3 4-3 4-3-4z"/><circle cx="42" cy="23.5" r="1.8"/><circle cx="58" cy="23.5" r="1.8"/></g>';
   if(eq.head==='coroa') s+='<path d="M38 27L40 13L45.5 20.5L50 10L54.5 20.5L60 13L62 27Z" fill="#f2c14e"/><rect x="38" y="24" width="24" height="4" rx="1.5" fill="#e0a92e"/><circle cx="50" cy="19.5" r="2.3" fill="#ff6f8e"/><circle cx="43.5" cy="22.5" r="1.5" fill="#7fc8f8"/><circle cx="56.5" cy="22.5" r="1.5" fill="#7fc8f8"/>';
-  if(eq.back==='capa') s+='<circle cx="50" cy="58" r="2.8" fill="#e8b84a"/>';
+  s+='</g>';
+  if(eq.back==='capa') s+='<circle cx="50" cy="60" r="2.8" fill="#e8b84a"/>';
   return s+'</svg>';
 }
 // acessórios, do mais simples ao mais chique
