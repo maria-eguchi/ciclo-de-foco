@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Azeret+Mono:wght@500;700&display=swap">
 <style>
-/* Layout: tela cheia em duas colunas — mostrador com o gatinho companheiro à esquerda; recompensas, música e sequência à direita */
+/* Layout: tela cheia em duas colunas — mostrador com a Mimi à esquerda; recompensas, música e sequência à direita */
 :root{
   --bg:#fbe9ee; --bg2:#f7dbe3; --card:#fcf1f4; --fg:#4a2b36; --muted:#946a7a; --line:#eecad6;
   --rose:#e8768f; --rose-deep:#c9516d; --rose-soft:#fcdbe3; --mint:#5fb8a0; --mint-soft:#d7f1e9; --gold:#e9a23b;
@@ -315,6 +315,10 @@ summary{font-weight:500;font-size:.98rem}
 .toast{border-width:1.5px;font-weight:600}
 .daysum .big{font-weight:500}
 .top .btns{flex-wrap:wrap;min-width:0}
+.mimibig{width:150px;align-self:center}
+.mimibig svg{width:100%;height:auto;display:block}
+.kit.locked svg.pet{opacity:.5}
+.taskform select{max-width:180px}
 /* seletores com seta afastada da borda */
 select{-webkit-appearance:none;appearance:none;padding-left:14px;padding-right:40px;cursor:pointer;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23b0889a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -440,7 +444,8 @@ body.focusing .keys{opacity:.4}
     </section>
 
     <section class="card">
-      <div class="wallet"><h2>Gatinhos</h2><span class="note" id="colCount"></span></div>
+      <div class="wallet"><h2>Mimi</h2><span class="note" id="colCount"></span></div>
+      <div class="mimibig" id="mimiBig"></div>
       <div class="grid" id="grid"></div>
 
       <details>
@@ -497,67 +502,69 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
              set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------- desenhos originais ---------- */
-const FISH='<svg viewBox="0 0 40 24" aria-hidden="true"><path d="M4 12c6-9 18-10 26 0-8 10-20 9-26 0z" fill="#f4b860" stroke="#4a2b36" stroke-width="2" stroke-linejoin="round"/><path d="M30 12l8-7v14z" fill="#f4b860" stroke="#4a2b36" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.8" fill="#4a2b36"/><path d="M17 8q2 4 0 8" fill="none" stroke="#4a2b36" stroke-width="1.6"/></svg>';
-const PAW='<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="16" rx="6" ry="5"/><circle cx="5" cy="10" r="2.4"/><circle cx="9.5" cy="6" r="2.4"/><circle cx="14.5" cy="6" r="2.4"/><circle cx="19" cy="10" r="2.4"/></g></svg>';
+// petisco em formato de osso (mantém o nome FISH usado no resto do código)
+const FISH='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M9 4.5a4.2 4.2 0 0 0-6 3.9 4 4 0 0 0 1.6 1.6A4 4 0 0 0 3 11.6a4.2 4.2 0 0 0 6 3.9c.6-.9 1.5-1.5 2.6-1.5h16.8c1.1 0 2 .6 2.6 1.5a4.2 4.2 0 0 0 6-3.9 4 4 0 0 0-1.6-1.6 4 4 0 0 0 1.6-1.6 4.2 4.2 0 0 0-6-3.9c-.6.9-1.5 1.5-2.6 1.5H11.6C10.5 6 9.6 5.4 9 4.5z" fill="#f6dcb4" stroke="#b98a5e" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+// patinha de cachorro
+const PAW='<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><path d="M12 11.5c-3 0-6 3.6-6 6.2 0 1.7 1.3 2.6 3 2.6 1.2 0 2-.6 3-.6s1.8.6 3 .6c1.7 0 3-.9 3-2.6 0-2.6-3-6.2-6-6.2z"/><ellipse cx="5" cy="10.5" rx="2.1" ry="2.7" transform="rotate(-20 5 10.5)"/><ellipse cx="9.2" cy="6.2" rx="2.1" ry="2.8" transform="rotate(-8 9.2 6.2)"/><ellipse cx="14.8" cy="6.2" rx="2.1" ry="2.8" transform="rotate(8 14.8 6.2)"/><ellipse cx="19" cy="10.5" rx="2.1" ry="2.7" transform="rotate(20 19 10.5)"/></g></svg>';
 
-let CID=0;
-function shade(hex,amt){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
-  const f=v=>Math.max(0,Math.min(255,Math.round(amt<0?v*(1+amt):v+(255-v)*amt)));
-  return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1)}
-function cat(c,sleep){
-  const b=c.coat, dk=shade(b,-.16), lt=shade(b,.35), id='hc'+(CID++);
-  const E=c.dark?'#ffe08a':'#3a2a30';
-  const body='M26 92C18 92 17 80 20 72C24 60 36 56 50 56C64 56 76 60 80 72C83 80 82 92 74 92Z';
-  const head='M50 24C66 24 76 33 76 46C76 58 65 66 50 66C35 66 24 58 24 46C24 33 34 24 50 24Z';
-  let s='<svg class="cat" viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="'+id+'"><path d="'+body+'"/><path d="'+head+'"/></clipPath></defs>';
-  s+='<ellipse cx="50" cy="93" rx="36" ry="4.5" fill="#000" opacity=".07"/>';
-  // rabo
-  s+='<path d="M72 89Q93 90 90 70" fill="none" stroke="'+dk+'" stroke-width="8" stroke-linecap="round"/>';
-  // orelhas
-  s+='<path d="M26 40L27 12L44 27Z" fill="'+b+'"/><path d="M74 40L73 12L56 27Z" fill="'+b+'"/>';
-  s+='<path d="M30 33L30.5 19L39 27Z" fill="'+(c.ear||dk)+'"/><path d="M70 33L69.5 19L61 27Z" fill="'+(c.ear||dk)+'"/>';
-  // corpo e cabeça
-  s+='<path d="'+body+'" fill="'+b+'"/><path d="'+head+'" fill="'+b+'"/><g clip-path="url(#'+id+')">';
-  if(c.stripes) s+='<g stroke="'+c.stripes+'" stroke-width="3" stroke-linecap="round"><path d="M50 25v6"/><path d="M44 26l1 5"/><path d="M56 26l-1 5"/><path d="M20 70h9"/><path d="M19 78h8"/><path d="M80 70h-9"/><path d="M81 78h-8"/></g>';
-  if(c.patch) s+='<ellipse cx="68" cy="34" rx="14" ry="12" fill="'+c.patch+'"/><ellipse cx="74" cy="80" rx="12" ry="14" fill="'+c.patch+'"/>';
-  if(c.patch2) s+='<ellipse cx="26" cy="84" rx="10" ry="10" fill="'+c.patch2+'"/>';
-  if(c.belly) s+='<ellipse cx="50" cy="80" rx="13" ry="16" fill="'+c.belly+'"/><ellipse cx="50" cy="56" rx="10" ry="7" fill="'+c.belly+'"/>';
-  s+='</g>';
+// Mimi: spitz creme, desenho próprio em estilo chapado
+function mimi(eq,sleep){
+  eq=eq||{};
+  const coat='#f7e7cf', mane='#fffaf3', gold='#ecca9a', E='#2b1f24';
+  let s='<svg class="pet" viewBox="0 0 100 100" aria-hidden="true">';
+  s+='<ellipse cx="50" cy="94" rx="34" ry="4.5" fill="#000" opacity=".07"/>';
+  // capa (atrás de tudo)
+  if(eq.back==='capa') s+='<path d="M26 62Q12 90 24 95L76 95Q88 90 74 62Z" fill="#7a2e52"/><path d="M26 62Q12 90 24 95L30 95Q20 88 31 63Z" fill="#5e2340"/><path d="M24 95L76 95" stroke="#e8b84a" stroke-width="2.4"/>';
+  // rabo de spitz: pluma enrolada nas costas
+  s+='<g fill="'+gold+'"><circle cx="79" cy="60" r="11"/><circle cx="86" cy="69" r="9"/><circle cx="74" cy="70" r="9"/></g><g fill="'+coat+'"><circle cx="80" cy="59" r="8"/><circle cx="85" cy="67" r="6"/></g>';
+  // corpo
+  s+='<path d="M26 93C17 93 18 76 24 68C30 60 40 57 50 57C60 57 70 60 76 68C82 76 83 93 74 93Z" fill="'+coat+'"/>';
+  // juba no peito
+  s+='<g fill="'+mane+'"><circle cx="38" cy="62" r="9"/><circle cx="50" cy="65" r="11"/><circle cx="62" cy="62" r="9"/><circle cx="43" cy="73" r="8"/><circle cx="57" cy="73" r="8"/><circle cx="50" cy="80" r="7"/></g>';
   // patinhas
-  s+='<ellipse cx="42" cy="91" rx="6" ry="3.6" fill="'+(c.paws||lt)+'"/><ellipse cx="58" cy="91" rx="6" ry="3.6" fill="'+(c.paws||lt)+'"/>';
-  // bigodes
-  s+='<g stroke="'+dk+'" stroke-width="1.6" stroke-linecap="round"><path d="M24 48h-6M24.5 52l-5 2.5"/><path d="M76 48h6M75.5 52l5 2.5"/></g>';
+  s+='<ellipse cx="41" cy="91" rx="6.5" ry="3.8" fill="'+mane+'"/><ellipse cx="59" cy="91" rx="6.5" ry="3.8" fill="'+mane+'"/>';
+  s+='<g stroke="'+gold+'" stroke-width="1.2" stroke-linecap="round"><path d="M39 89.5v2.5M43 89.5v2.5M57 89.5v2.5M61 89.5v2.5"/></g>';
+  // orelhas pontudas
+  s+='<path d="M31 33L34 11L47 26Z" fill="'+gold+'"/><path d="M69 33L66 11L53 26Z" fill="'+gold+'"/>';
+  s+='<path d="M35 28L36.5 17L43.5 25Z" fill="#f6c4c6"/><path d="M65 28L63.5 17L56.5 25Z" fill="#f6c4c6"/>';
+  // cabeça fofa com bochechas de pelo
+  s+='<g fill="'+coat+'"><ellipse cx="50" cy="40" rx="21" ry="18"/><circle cx="31" cy="47" r="8"/><circle cx="69" cy="47" r="8"/><circle cx="36" cy="54" r="7"/><circle cx="64" cy="54" r="7"/></g>';
+  s+='<ellipse cx="50" cy="50" rx="9.5" ry="7.5" fill="'+mane+'"/>';
   // rosto
-  if(sleep) s+='<path d="M38 47q3.5 2.6 7 0M55 47q3.5 2.6 7 0" fill="none" stroke="'+E+'" stroke-width="2" stroke-linecap="round"/>';
-  else s+='<ellipse cx="41.5" cy="46" rx="2.6" ry="3.4" fill="'+E+'"/><ellipse cx="58.5" cy="46" rx="2.6" ry="3.4" fill="'+E+'"/>';
-  s+='<ellipse cx="35" cy="53" rx="3.6" ry="2" fill="#ff8fab" opacity=".45"/><ellipse cx="65" cy="53" rx="3.6" ry="2" fill="#ff8fab" opacity=".45"/>';
-  s+='<path d="M48.2 51h3.6L50 53.2z" fill="#e2708a"/>';
-  // acessórios
-  const a=c.acc;
-  if(a==='laco') s+='<g transform="translate(67 28) rotate(18)"><path d="M0 0L-8-5Q-9.5 0-8 5ZM0 0L8-5Q9.5 0 8 5Z" fill="#ff7fa0"/><circle r="2.3" fill="#e95f84"/></g>';
-  if(a==='flor') s+='<g transform="translate(33 29)"><g fill="#fff"><circle cy="-3.2" r="2.8"/><circle cx="3.2" r="2.8"/><circle cy="3.2" r="2.8"/><circle cx="-3.2" r="2.8"/></g><circle r="2.2" fill="#f6c453"/></g>';
-  if(a==='oculos') s+='<g fill="none" stroke="#ffd166" stroke-width="2.2"><rect x="34" y="40.5" width="14" height="11" rx="5"/><rect x="52" y="40.5" width="14" height="11" rx="5"/><path d="M48 44h4"/></g>';
-  if(a==='chapeu') s+='<path d="M43 27L50 6L57 27Z" fill="#7fd1b9"/><circle cx="50" cy="6" r="3" fill="#ff8fab"/><circle cx="49" cy="17" r="1.3" fill="#fff"/><circle cx="52" cy="22" r="1.3" fill="#fff"/>';
-  if(a==='touca') s+='<path d="M24 41Q24 18 50 17Q76 18 76 41Z" fill="#b9a3f0"/><rect x="23" y="37" width="54" height="6" rx="3" fill="#9d84e6"/><circle cx="50" cy="16" r="4.5" fill="#fff"/>';
-  if(a==='cachecol') s+='<path d="M30 60Q50 70 70 60L70 66Q50 76 30 66Z" fill="#ff8fab"/><path d="M60 67l3 12h-7l-1-10z" fill="#ff8fab"/>';
-  if(a==='gravata') s+='<g transform="translate(50 64)"><path d="M0 0L-7-4Q-8.5 0-7 4ZM0 0L7-4Q8.5 0 7 4Z" fill="#7fd1b9"/><circle r="2" fill="#5fb8a0"/></g>';
-  if(a==='morango') s+='<g transform="translate(70 88)"><path d="M0-7q8 0 7 6-2 7-7 8-5-1-7-8-1-6 7-6z" fill="#ff6f8e"/><path d="M-4-7l4 2.6 4-2.6" fill="none" stroke="#5fb8a0" stroke-width="2.2" stroke-linecap="round"/></g>';
+  if(sleep) s+='<path d="M38 42q3.5 2.8 7 0M55 42q3.5 2.8 7 0" fill="none" stroke="'+E+'" stroke-width="2" stroke-linecap="round"/>';
+  else s+='<circle cx="41.5" cy="41.5" r="3.3" fill="'+E+'"/><circle cx="58.5" cy="41.5" r="3.3" fill="'+E+'"/><circle cx="42.6" cy="40.3" r="1.1" fill="#fff"/><circle cx="59.6" cy="40.3" r="1.1" fill="#fff"/>';
+  s+='<ellipse cx="34" cy="48" rx="3.6" ry="2" fill="#ff9db4" opacity=".55"/><ellipse cx="66" cy="48" rx="3.6" ry="2" fill="#ff9db4" opacity=".55"/>';
+  s+='<ellipse cx="50" cy="47.5" rx="3" ry="2.2" fill="'+E+'"/><path d="M47 51.5q1.5 1.8 3 0q1.5 1.8 3 0" fill="none" stroke="'+E+'" stroke-width="1.3" stroke-linecap="round"/>';
+  if(!sleep) s+='<path d="M48.8 52.6h2.4v1.6a1.2 1.2 0 0 1-2.4 0z" fill="#f27e98"/>';
+  // pescoço
+  if(eq.neck==='coleira') s+='<path d="M31 58Q50 67 69 58" fill="none" stroke="#ff8fab" stroke-width="4" stroke-linecap="round"/><path d="M50 63.5c-1.6-1.7-4-.2-2.6 1.8L50 68l2.6-2.7c1.4-2-1-3.5-2.6-1.8z" fill="#e95f84"/>';
+  if(eq.neck==='bandana') s+='<path d="M30 57Q50 65 70 57L50 79Z" fill="#7fc8f8"/><g fill="#fff"><circle cx="44" cy="64" r="1.3"/><circle cx="54" cy="65" r="1.3"/><circle cx="49" cy="71" r="1.3"/></g>';
+  if(eq.neck==='lenco') s+='<path d="M30 57Q50 66 70 57L70 62Q50 71 30 62Z" fill="#b9a3f0"/><circle cx="58" cy="65" r="3.4" fill="#9d84e6"/><path d="M58 66l-3 12h5l2-11zM59 66l5 10h4l-6-11z" fill="#b9a3f0"/>';
+  if(eq.neck==='perolas') {s+='<g fill="#fffdf8" stroke="#e7d9c6" stroke-width=".6">';for(let k=0;k<=10;k++){const t=k/10,x=32+36*t,y=58+8*Math.sin(Math.PI*t);s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.2"/>'}s+='</g><circle cx="50" cy="69.5" r="2.8" fill="#fffdf8" stroke="#e7d9c6" stroke-width=".6"/>';}
+  // rosto
+  if(eq.face==='oculos') s+='<g><rect x="34" y="37" width="14" height="10" rx="4.5" fill="#3b2530"/><rect x="52" y="37" width="14" height="10" rx="4.5" fill="#3b2530"/><path d="M48 40h4" stroke="#ff8fab" stroke-width="2"/><path d="M36 39.5l4-1.5M54 39.5l4-1.5" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".6"/></g>';
+  // cabeça
+  if(eq.head==='laco') s+='<g transform="translate(64 25) rotate(15)"><path d="M0 0L-8-5Q-9.5 0-8 5ZM0 0L8-5Q9.5 0 8 5Z" fill="#ff7fa0"/><circle r="2.3" fill="#e95f84"/></g>';
+  if(eq.head==='flor') s+='<g transform="translate(36 26)"><g fill="#fff"><circle cy="-3.4" r="3"/><circle cx="3.4" r="3"/><circle cy="3.4" r="3"/><circle cx="-3.4" r="3"/></g><circle r="2.3" fill="#f6c453"/></g>';
+  if(eq.head==='boina') s+='<g transform="rotate(-10 48 23)"><ellipse cx="48" cy="24" rx="17" ry="6.5" fill="#c94f6d"/><ellipse cx="48" cy="22.5" rx="13" ry="4" fill="#d9617f"/><path d="M48 17.5v-3" stroke="#c94f6d" stroke-width="2.4" stroke-linecap="round"/></g>';
+  if(eq.head==='tiara') s+='<path d="M32 29Q50 15 68 29" fill="none" stroke="#e8c15a" stroke-width="2.6" stroke-linecap="round"/><g fill="#bfe6ff" stroke="#e8c15a" stroke-width=".8"><path d="M50 15l3 4-3 4-3-4z"/><circle cx="42" cy="21.5" r="1.8"/><circle cx="58" cy="21.5" r="1.8"/></g>';
+  if(eq.head==='coroa') s+='<path d="M37 26L39 11L45 19L50 8L55 19L61 11L63 26Z" fill="#f2c14e"/><rect x="37" y="23" width="26" height="4" rx="1.5" fill="#e0a92e"/><circle cx="50" cy="18" r="2.4" fill="#ff6f8e"/><circle cx="43" cy="21" r="1.6" fill="#7fc8f8"/><circle cx="57" cy="21" r="1.6" fill="#7fc8f8"/>';
+  if(eq.back==='capa') s+='<circle cx="50" cy="60" r="3" fill="#e8b84a"/>';
   return s+'</svg>';
 }
-
-const KITS=[
-  {id:'mochi',nome:'Mochi',coat:'#ffffff',ear:'#ffc2d1',acc:'laco',preco:0},
-  {id:'pudim',nome:'Pudim',coat:'#f6b26b',stripes:'#e08f45',belly:'#fde4c6',acc:null,preco:6},
-  {id:'nuvem',nome:'Nuvem',coat:'#9aa1ad',acc:'touca',preco:8},
-  {id:'jabuticaba',nome:'Jabuticaba',coat:'#3d3540',ear:'#5a4c5e',acc:'flor',dark:true,preco:10},
-  {id:'pacoca',nome:'Paçoca',coat:'#c9a27a',belly:'#ecd8c0',acc:'oculos',preco:12},
-  {id:'bolinha',nome:'Bolinha',coat:'#ffffff',ear:'#ffc2d1',patch:'#f2a65a',patch2:'#4a3a3a',acc:null,preco:14},
-  {id:'azuki',nome:'Azuki',coat:'#8f8992',stripes:'#6f6973',acc:'cachecol',preco:16},
-  {id:'biscoito',nome:'Biscoito',coat:'#f0a45c',stripes:'#d07e36',belly:'#fff4e8',acc:'chapeu',preco:18},
-  {id:'cocada',nome:'Cocada',coat:'#f3e6d3',patch:'#d9b88f',acc:'flor',preco:20},
-  {id:'brigadeiro',nome:'Brigadeiro',coat:'#6b4a3e',acc:'gravata',dark:true,preco:24},
-  {id:'pitanga',nome:'Pitanga',coat:'#e98663',stripes:'#c96a48',belly:'#fde0d2',acc:'laco',preco:28},
-  {id:'rosinha',nome:'Rosinha',coat:'#ffd3de',ear:'#ff9fb5',belly:'#fff0f4',acc:'morango',preco:32},
+// acessórios, do mais simples ao mais chique
+const ACC=[
+  {id:'laco',slot:'head',nome:'Lacinho',preco:5},
+  {id:'coleira',slot:'neck',nome:'Coleira de coração',preco:8},
+  {id:'flor',slot:'head',nome:'Florzinha',preco:10},
+  {id:'bandana',slot:'neck',nome:'Bandana',preco:12},
+  {id:'oculos',slot:'face',nome:'Óculos de sol',preco:15},
+  {id:'lenco',slot:'neck',nome:'Lenço de seda',preco:18},
+  {id:'boina',slot:'head',nome:'Boina francesa',preco:22},
+  {id:'perolas',slot:'neck',nome:'Colar de pérolas',preco:26},
+  {id:'tiara',slot:'head',nome:'Tiara de cristais',preco:32},
+  {id:'capa',slot:'back',nome:'Capa de veludo',preco:40},
+  {id:'coroa',slot:'head',nome:'Coroa',preco:50},
 ];
 
 /* ---------- estado ---------- */
@@ -571,7 +578,10 @@ const S=()=>curPreset().seq;
 const saveSession=()=>store.set('cf_session',session);
 if(!presets.some(p=>p.id===session.preset)){session.preset=presets[0].id;saveSession()}
 let opts=store.get('cf_opts',{loop:true,autoRest:false});
-let wallet=store.get('cf_wallet',{coins:0,owned:['mochi'],buddy:'mochi'});
+let wallet=store.get('cf_wallet',{coins:0});
+if(!wallet.acc){const old={pudim:6,nuvem:8,jabuticaba:10,pacoca:12,bolinha:14,azuki:16,biscoito:18,cocada:20,brigadeiro:24,pitanga:28,rosinha:32};
+  wallet.refund=(wallet.owned||[]).reduce((s,id)=>s+(old[id]||0),0);wallet.coins=(wallet.coins||0)+wallet.refund;
+  wallet.acc=[];wallet.equip={head:null,neck:null,face:null,back:null};delete wallet.owned;delete wallet.buddy;store.set('cf_wallet',wallet)}
 let log=store.get('cf_log',[]);
 let goal=store.get('cf_goal',(store.get('cf_stats',{}).goal)||6);
 const saveAll=()=>{store.set('cf_wallet',wallet);store.set('cf_goal',goal)};
@@ -819,7 +829,6 @@ $('addTask').addEventListener('submit',e=>{e.preventDefault();const v=$('taskInp
   saveT();$('taskInput').value='';renderTasks();fillSelect(cat||'')});
 $('clearDone').onclick=()=>{tasks=tasks.filter(t=>!t.done);saveT();renderTasks()};
 /* ---------- render principal ---------- */
-function buddyKit(){return KITS.find(k=>k.id===wallet.buddy)||KITS[0]}
 const catName=id=>{if(id==null)return 'Geral';const c=cats.find(x=>x.id===id);return c?c.name:'Categoria apagada'};
 const catColor=id=>{const k=cats.findIndex(x=>x.id===id);return k<0?'var(--muted)':COLORS[k%COLORS.length]};
 let lastBuddyKey='';
@@ -835,8 +844,8 @@ function render(){
   $('startBtn').textContent=state.running?'Pausar':(state.remaining<state.total&&state.remaining>0?'Continuar':'Iniciar');
   $('extendBtn').hidden=!(state.running&&!rest);
   $('extendBtn').disabled=state.extended;
-  const key=wallet.buddy+(rest?'z':'a');
-  if(key!==lastBuddyKey){$('buddy').innerHTML=cat(buddyKit(),rest);lastBuddyKey=key}
+  const key=JSON.stringify(wallet.equip)+(rest?'z':'a');
+  if(key!==lastBuddyKey){$('buddy').innerHTML=mimi(wallet.equip,rest);lastBuddyKey=key}
   $('zzz').hidden=!(rest&&state.running);
   const chip=$('sessChip');chip.innerHTML='<span class="dot"></span><span></span>';
   chip.firstChild.style.background=catColor(session.cat);chip.lastChild.textContent=catName(session.cat);
@@ -851,22 +860,24 @@ function renderGoal(){
   $('goalInput').value=goal;
 }
 function renderGrid(){
+  $('mimiBig').innerHTML=mimi(wallet.equip,false);
   const g=$('grid');g.innerHTML='';
-  KITS.forEach(k=>{
-    const own=wallet.owned.includes(k.id);
+  ACC.forEach(a=>{
+    const own=wallet.acc.includes(a.id),on=wallet.equip[a.slot]===a.id;
     const b=document.createElement('button');
-    b.className='kit'+(own?'':' locked')+(!own&&wallet.coins>=k.preco?' can':'')+(wallet.buddy===k.id?' sel':'');
-    b.innerHTML=cat(k,false)+'<span class="nm">'+k.nome+'</span><span class="pr">'+(own?(wallet.buddy===k.id?'companhia':'adotado'):FISH+k.preco)+'</span>';
-    b.setAttribute('aria-label',own?k.nome+', adotado. Escolher como companhia':'Adotar '+k.nome+' por '+k.preco+' petiscos');
+    b.className='kit'+(own?'':' locked')+(!own&&wallet.coins>=a.preco?' can':'')+(on?' sel':'');
+    b.innerHTML=mimi({[a.slot]:a.id},false)+'<span class="nm"></span><span class="pr">'+(own?(on?'usando':'guardado'):FISH+a.preco)+'</span>';
+    b.querySelector('.nm').textContent=a.nome;
+    b.setAttribute('aria-label',own?(on?'Tirar ':'Colocar ')+a.nome:'Comprar '+a.nome+' por '+a.preco+' petiscos');
     b.onclick=()=>{
-      if(own){wallet.buddy=k.id}
-      else if(wallet.coins>=k.preco){wallet.coins-=k.preco;wallet.owned.push(k.id);wallet.buddy=k.id;toast(k.nome+' foi adotado!',null);hearts(b)}
-      else{toast('Faltam '+(k.preco-wallet.coins)+' petiscos para '+k.nome,FISH);return}
+      if(own){wallet.equip[a.slot]=on?null:a.id}
+      else if(wallet.coins>=a.preco){wallet.coins-=a.preco;wallet.acc.push(a.id);wallet.equip[a.slot]=a.id;toast('Mimi ganhou: '+a.nome+'!',null);hearts(b)}
+      else{toast('Faltam '+(a.preco-wallet.coins)+' petiscos para '+a.nome,FISH);return}
       saveAll();renderGrid();render();
     };
     g.appendChild(b);
   });
-  $('colCount').textContent=wallet.owned.length+' de '+KITS.length;
+  $('colCount').textContent=wallet.acc.length+' de '+ACC.length;
 }
 
 /* ---------- sessão: categoria, sequência, tarefas ---------- */
@@ -1219,6 +1230,8 @@ let theme=store.get('cf_theme','light');
 function applyTheme(){document.documentElement.setAttribute('data-theme',theme);$('themeBtn').textContent=theme==='light'?'Tema escuro':'Tema claro'}
 $('themeBtn').onclick=()=>{theme=theme==='light'?'dark':'light';store.set('cf_theme',theme);applyTheme()};
 applyTheme();
+
+if(wallet.refund){setTimeout(()=>toast('Os gatinhos viraram a Mimi! Devolvi '+wallet.refund+' petiscos gastos.',FISH),800);delete wallet.refund;saveAll()}
 
 /* ---------- início ---------- */
 setPhase('focus',0);renderSeq();renderGoal();renderGrid();renderSounds();renderTasks();refreshSession();
