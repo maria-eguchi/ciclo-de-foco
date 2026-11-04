@@ -319,6 +319,10 @@ summary{font-weight:500;font-size:.98rem}
 .mimibig svg{width:100%;height:auto;display:block}
 .kit.locked svg.pet{opacity:.5}
 .taskform select{max-width:180px}
+.sndpop{width:min(620px,100%);background:var(--card);border-radius:20px;padding:12px;box-sizing:border-box;box-shadow:0 8px 24px rgba(74,43,54,.08)}
+.sndpop .sounds{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:520px){.sndpop .sounds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body.focusing .controls #sndBtn[aria-expanded="true"]{opacity:1;color:var(--fg)}
 /* seletores com seta afastada da borda */
 select{-webkit-appearance:none;appearance:none;padding-left:14px;padding-right:40px;cursor:pointer;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23b0889a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -386,8 +390,10 @@ body.focusing .keys{opacity:.4}
         <button class="primary" id="startBtn">Iniciar</button>
         <button id="extendBtn" hidden>+5 min</button>
         <button id="capBtn">Anotar</button>
+        <button id="sndBtn" aria-expanded="false" aria-controls="sndPop">Sons</button>
         <button id="skipBtn">Pular fase</button>
       </div>
+      <div class="sndpop" id="sndPop" hidden></div>
       <div class="alert" id="endFocus" hidden>
         <p><strong>Bloco concluído!</strong> Marque acima as tarefas que terminou e anote onde vai retomar.</p>
         <label class="label" for="nextStep">Próximo passo</label>
@@ -399,7 +405,7 @@ body.focusing .keys{opacity:.4}
         <p id="resumeText"></p>
         <div class="inline"><button class="primary" id="goFocus">Iniciar foco</button></div>
       </div>
-      <p class="keys"><kbd>Espaço</kbd> iniciar · <kbd>N</kbd> anotar · <kbd>S</kbd> pular · <kbd>F</kbd> tela cheia</p>
+      <p class="keys"><kbd>Espaço</kbd> iniciar · <kbd>N</kbd> anotar · <kbd>M</kbd> sons · <kbd>S</kbd> pular · <kbd>F</kbd> tela cheia</p>
     </div>
   </section>
 
@@ -726,7 +732,7 @@ function renderSounds(){
     const c=document.createElement('div');c.className='snd'+(live[s.id]?' on':'');
     const v=mix[s.id]??s.vol;
     c.innerHTML='<button aria-pressed="'+(live[s.id]?'true':'false')+'" title="'+s.nome+'"><span class="nm">'+s.nome+'</span><span class="sw" aria-hidden="true"></span></button><input type="range" min="0" max="100" id="v-'+s.id+'" value="'+v+'" style="--p:'+v+'%" aria-label="Volume de '+s.nome+'">';
-    c.querySelector('button').onclick=()=>toggleSound(s,c);
+    c.querySelector('button').onclick=()=>{toggleSound(s,c);updateSndBtn()};
     c.querySelector('input').oninput=e=>{const x=+e.target.value;e.target.style.setProperty('--p',x+'%');mix[s.id]=x;store.set('cf_mix2',mix);setVol(s.id,x)};
     box.appendChild(c);
   });
@@ -1137,12 +1143,13 @@ $('tabT').onclick=()=>tab('T');$('tabN').onclick=()=>tab('N');$('tabH').onclick=
 
 /* ---------- atalhos ---------- */
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeCap();closeDay();return}
+  if(e.key==='Escape'){closeCap();closeDay();closeSnd();return}
   const tg=(e.target.tagName||'').toLowerCase();
   if(tg==='input'||tg==='textarea'||tg==='select'||e.target.isContentEditable||e.metaKey||e.ctrlKey||e.altKey)return;
   if(!$('dayModal').hidden||!$('capture').hidden)return;
   if(e.code==='Space'){if(tg==='button')return;e.preventDefault();state.running?pause():start()}
   else if(e.key==='n'||e.key==='N'){e.preventDefault();openCap()}
+  else if(e.key==='m'||e.key==='M'){e.preventDefault();toggleSndPop()}
   else if(e.key==='s'||e.key==='S'){e.preventDefault();skip()}
   else if(e.key==='f'||e.key==='F'){e.preventDefault();fs()}
 });
@@ -1233,6 +1240,14 @@ function startNag(rest){
 ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>{if((nag||flash)&&Date.now()-nagArmedAt>600)stopNag()},true));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&flash&&!nag&&Date.now()-nagArmedAt>600)stopNag()});
 setIcon(false);
+
+/* ---------- sons durante o foco: painel compacto abaixo do timer ---------- */
+const sndHome=$('sounds').parentNode;
+function updateSndBtn(){const n=Object.keys(live).length;$('sndBtn').textContent=n?'Sons · '+n:'Sons'}
+function closeSnd(){const p=$('sndPop');if(p.hidden)return;p.hidden=true;sndHome.appendChild($('sounds'));$('sndBtn').setAttribute('aria-expanded','false')}
+function toggleSndPop(){const p=$('sndPop');if(!p.hidden){closeSnd();return}p.appendChild($('sounds'));p.hidden=false;$('sndBtn').setAttribute('aria-expanded','true')}
+$('sndBtn').onclick=toggleSndPop;
+updateSndBtn();
 
 /* ---------- tema: claro por padrão ---------- */
 let theme=store.get('cf_theme','light');
